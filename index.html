@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Will You Be My Valentine?</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(120deg, #ff9a9e, #fad0c4);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  text-align: center;
+  background: rgba(255,255,255,0.9);
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 90%;
+  max-width: 420px;
+  position: relative;
+}
+
+h1 { color: #e63946; }
+
+button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 10px;
+  transition: transform 0.3s ease;
+}
+
+#yesBtn {
+  background: #ff4d6d;
+  color: white;
+}
+
+#noBtn {
+  background: #adb5bd;
+  position: absolute;
+}
+
+.hidden { display: none; }
+
+input {
+  padding: 10px;
+  width: 80%;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+}
+
+/* Cry emoji */
+.cry {
+  position: absolute;
+  font-size: 26px;
+  animation: fall 2s linear forwards;
+}
+
+@keyframes fall {
+  from { top: 0; opacity: 1; }
+  to { top: 100%; opacity: 0; }
+}
+
+/* Floating hearts */
+.heart {
+  position: absolute;
+  color: #ff4d6d;
+  font-size: 18px;
+  animation: floatUp 5s linear forwards;
+}
+
+@keyframes floatUp {
+  from { bottom: 0; opacity: 1; }
+  to { bottom: 100%; opacity: 0; }
+}
+
+/* Screen shake */
+.shake {
+  animation: shake 0.3s;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+  100% { transform: translateX(0); }
+}
+
+/* YES pulse */
+.pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/audio/2023/02/14/audio_6c02f24bde.mp3">
+</audio>
+
+<audio id="softPop">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7d6d44cbb7.mp3">
+</audio>
+
+<div class="container" id="passwordScreen">
+  <h1>🔐 Secret Entry</h1>
+  <input type="password" id="password" placeholder="Enter the password">
+  <p><small>Hint: The one who makes your heart soft</small></p>
+  <button onclick="checkPassword()">Enter</button>
+</div>
+
+<div class="container hidden" id="mainScreen">
+  <h1>Will you be my Valentine? 💘</h1>
+  <button id="yesBtn" onclick="yesClicked()">Yes 💖</button>
+  <button id="noBtn" onclick="noClicked()">No 🙄</button>
+  <p id="noText"></p>
+</div>
+
+<div class="container hidden" id="finalScreen">
+  <h1>💞 You made my day 💞</h1>
+  <p id="finalText"></p>
+  <img src="us.jpeg" style="width:100%;border-radius:15px;margin-top:10px;">
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const noText = document.getElementById("noText");
+const bgMusic = document.getElementById("bgMusic");
+const softPop = document.getElementById("softPop");
+const yesBtn = document.getElementById("yesBtn");
+const mainScreen = document.getElementById("mainScreen");
+
+let noLines = [
+  "Why… why are you doing this?",
+  "That hurts a little, you know…",
+  "Please don’t say no again",
+  "Are you really sure?",
+  "I’m trying my best here…",
+  "Okay okay… I’m sorry 😔"
+];
+
+let noCount = 0;
+let yesScale = 1;
+
+function checkPassword() {
+  if(document.getElementById("password").value.length > 0) {
+    passwordScreen.classList.add("hidden");
+    mainScreen.classList.remove("hidden");
+    bgMusic.play();
+    startHearts();
+  }
+}
+
+function noClicked() {
+  softPop.play();
+
+  if(noCount < noLines.length) {
+    typeText(noText, noLines[noCount]);
+    whisper(noLines[noCount]);
+    noCount++;
+  }
+
+  if(noCount > 4) noBtn.innerText = "Sorry 😭";
+
+  noBtn.style.top = Math.random() * 80 + "%";
+  noBtn.style.left = Math.random() * 80 + "%";
+
+  yesScale += 0.08;
+  yesBtn.style.transform = `scale(${yesScale})`;
+  if(yesScale > 1.4) yesBtn.classList.add("pulse");
+
+  mainScreen.classList.add("shake");
+  setTimeout(() => mainScreen.classList.remove("shake"), 300);
+
+  const cry = document.createElement("div");
+  cry.className = "cry";
+  cry.innerText = "😭";
+  cry.style.left = Math.random() * 90 + "%";
+  document.body.appendChild(cry);
+  setTimeout(() => cry.remove(), 2000);
+}
+
+function yesClicked() {
+  mainScreen.classList.add("hidden");
+  finalScreen.classList.remove("hidden");
+
+  const msg = `Thank You for everything . I am so lucky to have you in my life . You are the cutest person i ever meet.
+  I am so sorry bubu for all my mistake . I love you so much muahhhh 💖`;
+
+  typeText(finalText, msg);
+  whisper("Aww! I Love You! Muaahhh");
+}
+
+function whisper(text) {
+  let msg = new SpeechSynthesisUtterance(text);
+  msg.rate = 0.85;
+  msg.pitch = 0.6;
+  msg.volume = 0.6;
+  speechSynthesis.speak(msg);
+}
+
+function typeText(el, text) {
+  el.innerHTML = "";
+  let i = 0;
+  let t = setInterval(() => {
+    el.innerHTML += text.charAt(i);
+    i++;
+    if(i >= text.length) clearInterval(t);
+  }, 40);
+}
+
+/* Floating hearts */
+function startHearts() {
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerText = "💖";
+    heart.style.left = Math.random() * 100 + "%";
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 5000);
+  }, 700);
+}
+</script>
+
+</body>
+</html>
